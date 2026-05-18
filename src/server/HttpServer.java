@@ -22,11 +22,15 @@ public class HttpServer{
             
             String requestLine = in.readLine();
 
-            // Parse request line
+            // Extract app name, path and method
             String[] parts = requestLine.split(" ");
             String method = parts[0];
             String path = parts[1];
             String version = parts[2];
+
+            String[] pathParts = path.substring(1).split("/");
+            String appName = pathParts[0];
+            String fileName = pathParts[1];
 
             // Parse headers
             Map<String, String> headers = new HashMap<>();
@@ -38,15 +42,10 @@ public class HttpServer{
                 headers.put(key, value);
             }
 
-            HttpRequest request = new HttpRequest(path, method, version, headers);
+            HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers);
 
-            System.out.println("Method: "+request.method);
-            System.out.println("Path: "+request.path);
-            System.out.println("Version: "+request.version);
-
-            System.out.println("Headers:");
-
-            request.headers.forEach((key, value) -> System.out.println(key+": "+value));
+            System.out.println(request.getAppName());
+            System.out.println(request.getFileName());
             
             // Response body
             String html = "<h1>Hello from World</h1>";
