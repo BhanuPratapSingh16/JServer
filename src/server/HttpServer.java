@@ -10,15 +10,13 @@ import java.util.Map;
 
 public class HttpServer{
     public static void main(String[] args) throws Exception {
-        try{
-            ServerSocket serverSocket = new ServerSocket(8080);
-            System.out.println("Server started on port 8080");
-    
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-    
-                System.out.println("Client connected");
-    
+        ServerSocket serverSocket = new ServerSocket(8080);
+        System.out.println("Server started on port 8080");
+
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Client connected");
+            try{
                 // Read request
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 
@@ -27,58 +25,59 @@ public class HttpServer{
     
                 // Locate the application
                 Path appPath = ApplicationManager.findApp(request);
-
+    
                 // Handle resouce not found
                 if(appPath == null){
                     String html = "<h1>404 Not Found</h1><p>The requested resource was not found on this server.</p>";
-
+    
                     String response =
                             "HTTP/1.1 404 Not Found\r\n" +
                             "Content-Type: text/html\r\n" +
                             "Content-Length: " + html.length() + "\r\n" +
                             "\r\n" +
                             html;
-
+    
                     OutputStream out = clientSocket.getOutputStream();
                     out.write(response.getBytes());
-
+    
                     out.flush();
                 }
                 // Handle application found
                 else{
                     // Read user routes configuration file
                     Map<String, String> routes = ConfigManager.loadRoutes(appPath);
-
+    
                     // Resolve the route
                     String path = request.getFileName();
                     path = "/" + path;
-
+    
                     if(path.endsWith(".html")){
                         path = path.substring(0, path.length()-5);
                     }
-
+    
                     String fileName = RouteResolver.resolve(path, routes);
-
+    
                     // Load and read the html file
                     Path htmlPath = appPath.resolve(fileName);
                     String html = Files.readString(htmlPath);
-
+    
                     // Create response object
                     HttpResponse response = new HttpResponse(200, "text/html", html);
                     
                     // Send response back to client
                     OutputStream out = clientSocket.getOutputStream();
-
+    
                     out.write(response.toHttpResponse().getBytes());
                     out.flush();
                 }
-
-                
                 clientSocket.close();
             }
-        }
-        catch(Exception e){
-            e.printStackTrace();
+            catch(Exception e){
+                OutputStream out = clientSocket.getOutputStream();
+                out.write(ExceptionHandler.throwInternalServerError().getBytes());
+                out.flush();
+                e.printStackTrace();
+            }
         }
     }
 }
