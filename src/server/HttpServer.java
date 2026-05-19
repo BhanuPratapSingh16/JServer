@@ -49,6 +49,8 @@ public class HttpServer{
     
                 // Locate the application
                 Path appPath = ApplicationManager.findApp(appName);
+
+                // Handle resouce not found
                 if(appPath == null){
                     String html = "<h1>404 Not Found</h1><p>The requested resource was not found on this server.</p>";
 
@@ -63,6 +65,11 @@ public class HttpServer{
                     out.write(response.getBytes());
 
                     out.flush();
+                }
+                // Handle application found
+                else{
+                    // Read user routes configuration file
+                    
                 }
 
                 
