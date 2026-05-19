@@ -9,4 +9,12 @@ public class HttpResponse {
         this.contentType = contentType;
         this.body = body;
     }
+
+    public String toHttpResponse(){
+        return "HTTP/1.1 " + statusCode + " OK\r\n" +
+               "Content-Type: " + contentType + "\r\n" + 
+               "Content-Length: "+ body.length() + "\r\n" + 
+               "\r\n" + 
+               body;
+    }
 }

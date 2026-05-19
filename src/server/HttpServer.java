@@ -4,8 +4,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 public class HttpServer{
@@ -22,33 +22,12 @@ public class HttpServer{
                 // Read request
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 
-                String requestLine = in.readLine();
-    
-                // Extract app name, path and method
-                String[] parts = requestLine.split(" ");
-                String method = parts[0];
-                String path = parts[1];
-                String version = parts[2];
-    
-                String[] pathParts = path.substring(1).split("/");
-                String appName = pathParts[0];
-                String fileName = pathParts[1];
-    
-                // Parse headers
-                Map<String, String> headers = new HashMap<>();
-                String line;
-                while (!(line = in.readLine()).isEmpty()) {
-                    int separator = line.indexOf(":");
-                    String key = line.substring(0, separator).trim();
-                    String value = line.substring(separator+1).trim();
-                    headers.put(key, value);
-                }
-    
-                // Create a request object
-                HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers);
+                // Parse request
+                HttpRequest request = RequestParser.parse(in);
     
                 // Locate the application
-                Path appPath = ApplicationManager.findApp(appName);
+                Path appPath = ApplicationManager.findApp(request);
+                System.out.println("App path = "+appPath);
 
                 // Handle resouce not found
                 if(appPath == null){
@@ -69,7 +48,26 @@ public class HttpServer{
                 // Handle application found
                 else{
                     // Read user routes configuration file
+                    Map<String, String> routes = ConfigManager.loadRoutes(appPath);
+
+                    // Resolve the route
+                    String path = request.getFileName();
+                    path = "/" + path;
+                    String fileName = RouteResolver.resolve(path, routes);
+
+                    // Load and read the html file
+                    Path htmlPath = appPath.resolve(fileName);
+
+                    String html = Files.readString(htmlPath);
+
+                    // Create response object
+                    HttpResponse response = new HttpResponse(200, "text/html", html);
                     
+                    // Send response back to client
+                    OutputStream out = clientSocket.getOutputStream();
+
+                    out.write(response.toHttpResponse().getBytes());
+                    out.flush();
                 }
 
                 

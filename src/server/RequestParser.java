@@ -1,0 +1,36 @@
+package src.server;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class RequestParser {
+    public static HttpRequest parse(BufferedReader in) throws IOException {
+        String requestLine = in.readLine();
+    
+        // Extract app name, path and method
+        String[] parts = requestLine.split(" ");
+        String method = parts[0];
+        String path = parts[1];
+        String version = parts[2];
+
+        String[] pathParts = path.substring(1).split("/");
+        String appName = pathParts[0];
+        String fileName = pathParts[1];
+
+        // Parse headers
+        Map<String, String> headers = new HashMap<>();
+        String line;
+        while (!(line = in.readLine()).isEmpty()) {
+            int separator = line.indexOf(":");
+            String key = line.substring(0, separator).trim();
+            String value = line.substring(separator+1).trim();
+            headers.put(key, value);
+        }
+
+        // Create request object and return it
+        HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers);
+        return request;
+    }
+}
