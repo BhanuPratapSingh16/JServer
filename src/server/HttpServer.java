@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -63,18 +64,25 @@ public class HttpServer{
                     String contentType = ContentTypeResolver.resolve(fileName);
 
                     Path filePath = appPath.resolve(fileName);
-                    String fileContent = Files.readString(filePath);
+                    byte[] body = Files.readAllBytes(filePath);
     
                     // Create response object
-                    HttpResponse response = new HttpResponse(200, contentType, fileContent);
+                    HttpResponse response = new HttpResponse(200, contentType, body);
                     
+                    String headers ="HTTP/1.1 200 OK\r\n" +
+                                    "Content-Type: " + response.getContentType() + "\r\n" +
+                                    "Content-Length: " + response.getBody().length + "\r\n" +
+                                    "\r\n";
+
                     // Send response back to client
                     OutputStream out = clientSocket.getOutputStream();
-    
-                    out.write(response.toHttpResponse().getBytes());
+                    out.write(headers.getBytes());
+                    out.write(response.getBody());
                     out.flush();
                 }
-                clientSocket.close();
+            }
+            catch(SocketException e){
+                System.out.println("Client disconnected");
             }
             catch(Exception e){
                 OutputStream out = clientSocket.getOutputStream();
@@ -82,6 +90,7 @@ public class HttpServer{
                 out.flush();
                 e.printStackTrace();
             }
+            clientSocket.close();
         }
     }
 }
