@@ -1,6 +1,4 @@
-package src.server;
-
-import java.io.OutputStream;
+package src.utils;
 
 public class ExceptionHandler {
     public static String throwInternalServerError(){
