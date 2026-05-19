@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import src.utils.ContentTypeResolver;
 import src.utils.ExceptionHandler;
 
 public class HttpServer{
@@ -49,14 +50,23 @@ public class HttpServer{
                     if(path.endsWith(".html")){
                         path = path.substring(0, path.length()-5);
                     }
-    
-                    // Load and read the html file
-                    String fileName = RouteResolver.resolve(path, routes);
-                    Path htmlPath = appPath.resolve(fileName);
-                    String html = Files.readString(htmlPath);
+
+                    // Load and read the file
+                    String fileName;
+                    if(path.endsWith(".html") || path.endsWith("/")){
+                        fileName = RouteResolver.resolve(path, routes);
+                    }
+                    else{
+                        fileName = path.substring(1);
+                    }
+
+                    String contentType = ContentTypeResolver.resolve(fileName);
+
+                    Path filePath = appPath.resolve(fileName);
+                    String fileContent = Files.readString(filePath);
     
                     // Create response object
-                    HttpResponse response = new HttpResponse(200, "text/html", html);
+                    HttpResponse response = new HttpResponse(200, contentType, fileContent);
                     
                     // Send response back to client
                     OutputStream out = clientSocket.getOutputStream();
