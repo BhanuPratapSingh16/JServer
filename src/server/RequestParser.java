@@ -25,7 +25,7 @@ public class RequestParser {
         // Parse headers
         Map<String, String> headers = new HashMap<>();
         String line;
-        while (!(line = in.readLine()).isEmpty()) {
+        while ((line = in.readLine()) != null && !line.isEmpty()) {
             int separator = line.indexOf(":");
             String key = line.substring(0, separator).trim();
             String value = line.substring(separator+1).trim();
