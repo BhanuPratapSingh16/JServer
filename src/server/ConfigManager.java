@@ -29,6 +29,10 @@ public class ConfigManager{
             }
 
             String key = parts[0];  // Path
+            if(key.endsWith(".html")){
+                key = key.substring(0, key.length()-5);
+            }
+
             String value = parts[1];  // Html file to be served
 
             if(!value.endsWith(".html")){
@@ -37,7 +41,7 @@ public class ConfigManager{
 
             routes.put(key, value); // Add the route to map
         }
-        
+
         return routes;
     }
 }

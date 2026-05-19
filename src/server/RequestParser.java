@@ -17,7 +17,10 @@ public class RequestParser {
 
         String[] pathParts = path.substring(1).split("/");
         String appName = pathParts[0];
-        String fileName = pathParts[1];
+        String fileName = "";
+        if(pathParts.length == 2){
+            fileName = pathParts[1];
+        }
 
         // Parse headers
         Map<String, String> headers = new HashMap<>();

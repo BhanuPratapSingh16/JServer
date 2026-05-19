@@ -27,7 +27,6 @@ public class HttpServer{
     
                 // Locate the application
                 Path appPath = ApplicationManager.findApp(request);
-                System.out.println("App path = "+appPath);
 
                 // Handle resouce not found
                 if(appPath == null){
@@ -53,11 +52,15 @@ public class HttpServer{
                     // Resolve the route
                     String path = request.getFileName();
                     path = "/" + path;
+
+                    if(path.endsWith(".html")){
+                        path = path.substring(0, path.length()-5);
+                    }
+
                     String fileName = RouteResolver.resolve(path, routes);
 
                     // Load and read the html file
                     Path htmlPath = appPath.resolve(fileName);
-
                     String html = Files.readString(htmlPath);
 
                     // Create response object
