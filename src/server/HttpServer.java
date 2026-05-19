@@ -28,14 +28,7 @@ public class HttpServer{
     
                 // Handle resouce not found
                 if(appPath == null){
-                    String html = "<h1>404 Not Found</h1><p>The requested resource was not found on this server.</p>";
-    
-                    String response =
-                            "HTTP/1.1 404 Not Found\r\n" +
-                            "Content-Type: text/html\r\n" +
-                            "Content-Length: " + html.length() + "\r\n" +
-                            "\r\n" +
-                            html;
+                    String response = ExceptionHandler.throwNotFoundError();
     
                     OutputStream out = clientSocket.getOutputStream();
                     out.write(response.getBytes());
@@ -55,9 +48,8 @@ public class HttpServer{
                         path = path.substring(0, path.length()-5);
                     }
     
-                    String fileName = RouteResolver.resolve(path, routes);
-    
                     // Load and read the html file
+                    String fileName = RouteResolver.resolve(path, routes);
                     Path htmlPath = appPath.resolve(fileName);
                     String html = Files.readString(htmlPath);
     
