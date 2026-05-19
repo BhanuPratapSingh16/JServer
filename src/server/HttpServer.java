@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import src.utils.ExceptionHandler;
+
 public class HttpServer{
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = new ServerSocket(8080);
