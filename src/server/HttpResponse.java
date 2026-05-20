@@ -10,6 +10,10 @@ public class HttpResponse {
         this.body = body;
     }
 
+    public int getStatusCode(){
+        return this.statusCode;
+    }
+
     public String getContentType() {
         return this.contentType;
     }
