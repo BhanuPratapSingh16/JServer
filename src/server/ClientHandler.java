@@ -13,9 +13,18 @@ import java.util.Map;
 import src.utils.ContentTypeResolver;
 import src.utils.ExceptionHandler;
 
-public class ClientHandler {
-    public static void execute(Socket clientSocket) throws IOException {
-        try {
+public class ClientHandler implements Runnable {
+    private Socket clientSocket;
+
+    public ClientHandler(Socket clientSocket){
+        this.clientSocket = clientSocket;
+    }
+
+    @Override
+    public void run(){
+        try{
+            System.out.println(Thread.currentThread().getName());
+
             // Read request
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -66,6 +75,7 @@ public class ClientHandler {
                 String headers = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: " + response.getContentType() + "\r\n" +
                         "Content-Length: " + response.getBody().length + "\r\n" +
+                        "Connection: close\r\n"+
                         "\r\n";
 
                 // Send response back to client
@@ -77,10 +87,23 @@ public class ClientHandler {
         } catch (SocketException e) {
             System.out.println("Client disconnected");
         } catch (Exception e) {
-            OutputStream out = clientSocket.getOutputStream();
-            out.write(ExceptionHandler.throwInternalServerError().getBytes());
-            out.flush();
+            OutputStream out;
+            try {
+                out = clientSocket.getOutputStream();
+                out.write(ExceptionHandler.throwInternalServerError().getBytes());
+                out.flush();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
+        finally{
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
+
 }
