@@ -1,11 +1,11 @@
-package src.server;
+package src.main.java.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import src.parser.FormParser;
+import src.main.java.parser.FormParser;
 
 public class RequestParser {
     public static HttpRequest parse(BufferedReader in) throws IOException {
@@ -45,6 +45,9 @@ public class RequestParser {
             // Parse form data
             if(headers.get("Content-Type").equals("application/x-www-form-urlencoded")){
                 body = FormParser.parse(in, contentLengthHeader);
+            }
+            else if(headers.get("Content-Type").equals("application/json")){
+                
             }
         }
 

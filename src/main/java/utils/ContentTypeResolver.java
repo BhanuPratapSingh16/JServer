@@ -1,4 +1,4 @@
-package src.utils;
+package src.main.java.utils;
 
 public class ContentTypeResolver {
     public static String resolve(String fileName){

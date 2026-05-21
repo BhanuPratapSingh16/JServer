@@ -1,4 +1,4 @@
-package src.server;
+package src.main.java.server;
 public class HttpResponse {
     private int statusCode;
     private String contentType;

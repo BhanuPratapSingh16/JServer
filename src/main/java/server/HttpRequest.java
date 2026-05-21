@@ -1,4 +1,4 @@
-package src.server;
+package src.main.java.server;
 
 import java.util.Map;
 
