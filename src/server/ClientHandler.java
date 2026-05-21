@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import src.utils.ContentTypeResolver;
@@ -16,21 +17,20 @@ import src.utils.ExceptionHandler;
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
 
-    public ClientHandler(Socket clientSocket){
+    private final static List<String> extensions = List.of("css", "js", "json", "png", "jpg");
+
+    public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
     @Override
-    public void run(){
-        try{
-            System.out.println(Thread.currentThread().getName());
-
+    public void run() {
+        try {
             // Read request
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             // Parse request
             HttpRequest request = RequestParser.parse(in);
-
             // Locate the application
             Path appPath = ApplicationManager.findApp(request);
 
@@ -58,7 +58,16 @@ public class ClientHandler implements Runnable {
 
                 // Load and read the file
                 String fileName;
-                if (path.endsWith(".html") || path.endsWith("/")) {
+                boolean isHtml = true;
+
+                for (String ext : extensions) {
+                    if (path.endsWith(ext)) {
+                        isHtml = false;
+                        break;
+                    }
+                }
+
+                if (isHtml) {
                     fileName = RouteResolver.resolve(path, routes);
                 } else {
                     fileName = path.substring(1);
@@ -75,7 +84,7 @@ public class ClientHandler implements Runnable {
                 String headers = "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: " + response.getContentType() + "\r\n" +
                         "Content-Length: " + response.getBody().length + "\r\n" +
-                        "Connection: close\r\n"+
+                        "Connection: close\r\n" +
                         "\r\n";
 
                 // Send response back to client
@@ -96,8 +105,7 @@ public class ClientHandler implements Runnable {
                 e1.printStackTrace();
             }
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {

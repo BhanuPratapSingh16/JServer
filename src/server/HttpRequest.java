@@ -9,15 +9,16 @@ public class HttpRequest {
     private String appName;
     private String fileName;
     private Map<String, String> headers;
+    private Map<String, String> body;
 
-    public HttpRequest(String path, String method, String version, String appName, String fileName,
-            Map<String, String> headers) {
+    public HttpRequest(String path, String method, String version, String appName, String fileName, Map<String, String> headers, Map<String, String> body) {
         this.path = path;
         this.method = method;
         this.version = version;
         this.appName = appName;
         this.fileName = fileName;
         this.headers = headers;
+        this.body = body;
     }
 
     public String getPath() {
@@ -44,6 +45,10 @@ public class HttpRequest {
         return this.headers;
     }
 
+    public Map<String, String> getBody(){
+        return this.body;
+    }
+
     public void setPath(String path) {
         this.path = path;
     }
@@ -66,6 +71,10 @@ public class HttpRequest {
 
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public void setBody(Map<String, String> body){
+        this.body = body;
     }
 
 }
