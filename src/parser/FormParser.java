@@ -2,6 +2,8 @@ package src.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,10 +17,11 @@ public class FormParser {
         
         String[] content = new String(contentChars).split("&");
         for(String s:content){
-            String key = s.substring(s.indexOf("="));
-            String value = s.substring(s.indexOf("=")+1);
+            String key = URLDecoder.decode(s.substring(0, s.indexOf("=")), StandardCharsets.UTF_8);
+            String value = URLDecoder.decode(s.substring(s.indexOf("=")+1), StandardCharsets.UTF_8);
             body.put(key, value);
         }
+        System.out.println(body);
         return body;
     }
 }
