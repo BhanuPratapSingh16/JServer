@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import parser.FormParser;
+import parser.JsonParser;
 
 public class RequestParser {
     public static HttpRequest parse(BufferedReader in) throws IOException {
@@ -41,18 +42,19 @@ public class RequestParser {
         // Parse body in case of post request
         String contentLengthHeader = headers.get("Content-Length");
         Map<String, String> body = new HashMap<>();
+        Map<String, Object> jsonBody = new HashMap<>();
         if(contentLengthHeader != null){
             // Parse form data
             if(headers.get("Content-Type").equals("application/x-www-form-urlencoded")){
                 body = FormParser.parse(in, contentLengthHeader);
             }
             else if(headers.get("Content-Type").equals("application/json")){
-                
+                jsonBody = JsonParser.parse(in, contentLengthHeader);
             }
         }
 
         // Create request object and return it
-        HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers, body);
+        HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers, body, jsonBody);
         return request;
     }
 }

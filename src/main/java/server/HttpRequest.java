@@ -10,8 +10,9 @@ public class HttpRequest {
     private String fileName;
     private Map<String, String> headers;
     private Map<String, String> body;
+    private Map<String, Object> jsonBody;
 
-    public HttpRequest(String path, String method, String version, String appName, String fileName, Map<String, String> headers, Map<String, String> body) {
+    public HttpRequest(String path, String method, String version, String appName, String fileName, Map<String, String> headers, Map<String, String> body, Map<String, Object> jsonBody) {
         this.path = path;
         this.method = method;
         this.version = version;
@@ -19,6 +20,7 @@ public class HttpRequest {
         this.fileName = fileName;
         this.headers = headers;
         this.body = body;
+        this.jsonBody = jsonBody;
     }
 
     public String getPath() {
@@ -48,6 +50,10 @@ public class HttpRequest {
     public Map<String, String> getBody(){
         return this.body;
     }
+    
+    public Map<String, Object> getJsonBody(){
+        return this.jsonBody;
+    }
 
     public void setPath(String path) {
         this.path = path;
@@ -75,6 +81,10 @@ public class HttpRequest {
 
     public void setBody(Map<String, String> body){
         this.body = body;
+    }
+
+    public void setJsonBody(Map<String, Object> jsonBody){
+        this.jsonBody = jsonBody;
     }
 
 }

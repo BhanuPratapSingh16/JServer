@@ -21,7 +21,6 @@ public class FormParser {
             String value = URLDecoder.decode(s.substring(s.indexOf("=")+1), StandardCharsets.UTF_8);
             body.put(key, value);
         }
-        System.out.println(body);
         return body;
     }
 }
