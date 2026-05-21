@@ -1,4 +1,4 @@
-package src.server;
+package src.main.java.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import src.utils.ContentTypeResolver;
-import src.utils.ExceptionHandler;
+import src.main.java.utils.ContentTypeResolver;
+import src.main.java.utils.ExceptionHandler;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
