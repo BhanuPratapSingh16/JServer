@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import src.parser.FormParser;
+
 public class RequestParser {
     public static HttpRequest parse(BufferedReader in) throws IOException {
         String requestLine = in.readLine();
@@ -22,6 +24,10 @@ public class RequestParser {
             fileName = pathParts[1];
         }
 
+        if(method.equalsIgnoreCase("GET") && fileName.indexOf("?") != -1){
+            fileName = fileName.split("\\?")[0];  // Extract only file name and not the form data
+        }
+
         // Parse headers
         Map<String, String> headers = new HashMap<>();
         String line;
@@ -32,8 +38,18 @@ public class RequestParser {
             headers.put(key, value);
         }
 
+        // Parse body in case of post request
+        String contentLengthHeader = headers.get("Content-Length");
+        Map<String, String> body = new HashMap<>();
+        if(contentLengthHeader != null){
+            // Parse form data
+            if(headers.get("Content-Type").equals("application/x-www-form-urlencoded")){
+                body = FormParser.parse(in, contentLengthHeader);
+            }
+        }
+
         // Create request object and return it
-        HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers);
+        HttpRequest request = new HttpRequest(path, method, version, appName, fileName, headers, body);
         return request;
     }
 }

@@ -9,7 +9,7 @@ public class HttpServer{
         ServerSocket serverSocket = new ServerSocket(8080);
         System.out.println("Server started on port 8080");
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(100);
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
         while (true) {
             Socket clientSocket = serverSocket.accept();
