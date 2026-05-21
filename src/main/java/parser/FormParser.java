@@ -1,4 +1,4 @@
-package src.main.java.parser;
+package parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;

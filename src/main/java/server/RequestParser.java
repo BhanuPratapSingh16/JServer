@@ -1,11 +1,11 @@
-package src.main.java.server;
+package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import src.main.java.parser.FormParser;
+import parser.FormParser;
 
 public class RequestParser {
     public static HttpRequest parse(BufferedReader in) throws IOException {

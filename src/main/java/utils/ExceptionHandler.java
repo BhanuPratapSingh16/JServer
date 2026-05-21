@@ -1,4 +1,4 @@
-package src.main.java.utils;
+package utils;
 
 public class ExceptionHandler {
     public static String throwInternalServerError(){

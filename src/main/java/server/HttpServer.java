@@ -1,4 +1,4 @@
-package src.main.java.server;
+package server;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
