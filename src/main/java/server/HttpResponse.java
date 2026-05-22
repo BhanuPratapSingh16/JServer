@@ -10,6 +10,18 @@ public class HttpResponse {
         this.body = body;
     }
 
+    public void setStatusCode(int statusCode){
+        this.statusCode = statusCode;
+    }
+
+    public void setContentType(String contentType){
+        this.contentType = contentType;
+    }
+
+    public void setBody(byte[] body){
+        this.body = body;
+    }
+
     public int getStatusCode(){
         return this.statusCode;
     }
