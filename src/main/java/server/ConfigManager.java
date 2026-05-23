@@ -35,7 +35,7 @@ public class ConfigManager{
 
             String value = parts[1];  // Html file to be served
 
-            if(!value.endsWith(".html") && !value.endsWith(".css")){
+            if(!value.contains(".")){
                 value += ".html";
             }
 
