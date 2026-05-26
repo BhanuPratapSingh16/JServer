@@ -11,6 +11,9 @@ import parser.JsonParser;
 public class RequestParser {
     public static HttpRequest parse(BufferedReader in) throws IOException {
         String requestLine = in.readLine();
+        if(requestLine == null){
+            return null;
+        }
     
         // Extract app name, path and method
         String[] parts = requestLine.split(" ");

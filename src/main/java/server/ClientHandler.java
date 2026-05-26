@@ -1,11 +1,13 @@
 package server;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -26,73 +28,81 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
+            clientSocket.setSoTimeout(5000);
             // Read request
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            // Parse request
-            HttpRequest request = RequestParser.parse(in);
-            // Locate the application
-            Path appPath = ApplicationManager.findApp(request);
+            BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
-            // Handle resouce not found
-            if (appPath == null) {
-                String response = ExceptionHandler.throwNotFoundError();
+            while (true) {
+                // Parse request
+                HttpRequest request = RequestParser.parse(in);
 
-                OutputStream out = clientSocket.getOutputStream();
-                out.write(response.getBytes());
-
-                out.flush();
-            }
-            // Handle application found
-            else {
-                // Read user routes configuration file
-                Map<String, String> routes = ConfigManager.loadRoutes(appPath);
-
-                // Resolve the route
-                String path = request.getFileName();
-                path = "/" + path;
-
-                if (path.endsWith(".html")) {
-                    path = path.substring(0, path.length() - 5);
+                if (request == null) { // Client disconnected
+                    break;
                 }
 
-                // Load and read the file
-                String fileName;
-                boolean isHtml = true;
+                // Locate the application
+                Path appPath = ApplicationManager.findApp(request);
 
-                for (String ext : extensions) {
-                    if (path.endsWith(ext)) {
-                        isHtml = false;
-                        break;
+                // Handle resouce not found
+                if (appPath == null) {
+                    String response = ExceptionHandler.throwNotFoundError();
+                    out.write(response.getBytes());
+                    out.flush();
+                }
+                // Handle application found
+                else {
+                    // Read user routes configuration file
+                    Map<String, String> routes = ConfigManager.loadRoutes(appPath);
+
+                    // Resolve the route
+                    String path = request.getFileName();
+                    path = "/" + path;
+
+                    if (path.endsWith(".html")) {
+                        path = path.substring(0, path.length() - 5);
                     }
+
+                    // Load and read the file
+                    String fileName;
+                    boolean isHtml = true;
+
+                    for (String ext : extensions) {
+                        if (path.endsWith(ext)) {
+                            isHtml = false;
+                            break;
+                        }
+                    }
+
+                    if (isHtml) {
+                        fileName = RouteResolver.resolve(path, routes);
+                    } else {
+                        fileName = path.substring(1);
+                    }
+
+                    String contentType = ContentTypeResolver.resolve(fileName);
+
+                    Path filePath = appPath.resolve(fileName);
+                    byte[] body = Files.readAllBytes(filePath);
+
+                    // Create response object
+                    HttpResponse response = new HttpResponse(200, contentType, body);
+
+                    String headers = "HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: " + response.getContentType() + "\r\n" +
+                            "Content-Length: " + response.getBody().length + "\r\n" +
+                            "Connection: keep-alive\r\n" +
+                            "\r\n";
+
+                    // Send response back to client
+                    out.write(headers.getBytes());
+                    out.write(response.getBody());
+                    out.flush();
                 }
-
-                if (isHtml) {
-                    fileName = RouteResolver.resolve(path, routes);
-                } else {
-                    fileName = path.substring(1);
-                }
-
-                String contentType = ContentTypeResolver.resolve(fileName);
-
-                Path filePath = appPath.resolve(fileName);
-                byte[] body = Files.readAllBytes(filePath);
-
-                // Create response object
-                HttpResponse response = new HttpResponse(200, contentType, body);
-
-                String headers = "HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: " + response.getContentType() + "\r\n" +
-                        "Content-Length: " + response.getBody().length + "\r\n" +
-                        "Connection: close\r\n" +
-                        "\r\n";
-
-                // Send response back to client
-                OutputStream out = clientSocket.getOutputStream();
-                out.write(headers.getBytes());
-                out.write(response.getBody());
-                out.flush();
             }
+        } catch (SocketTimeoutException e) {
+            System.out.println("Connection timeout");
         } catch (SocketException e) {
             System.out.println("Client disconnected");
         } catch (Exception e) {
