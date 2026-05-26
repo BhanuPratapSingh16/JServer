@@ -29,12 +29,17 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             clientSocket.setSoTimeout(5000);
+
+            
             // Read request
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+            
             BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
-
+            
             while (true) {
+                // Info to log time data
+                long start = System.currentTimeMillis();
+                
                 // Parse request
                 HttpRequest request = RequestParser.parse(in);
 
@@ -99,6 +104,12 @@ public class ClientHandler implements Runnable {
                     out.write(headers.getBytes());
                     out.write(response.getBody());
                     out.flush();
+                    
+                    // Info to log time data
+                    long end = System.currentTimeMillis();
+
+                    // Log info
+                    Logger.log(clientSocket, request, response, end - start);
                 }
             }
         } catch (SocketTimeoutException e) {
